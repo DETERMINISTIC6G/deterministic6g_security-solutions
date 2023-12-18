@@ -1,0 +1,63 @@
+%{
+%}
+%ignore-case
+%language=ANSI-C
+%define lookup-function-name get_file_extension_from_content_type
+%define hash-function-name   get_content_type_hash
+%define slot-name            content_type
+%enum
+%includes
+%struct-type
+%readonly-tables
+%compare-strncmp
+
+struct file_extension{
+   const char* content_type;
+   const char* file_extension;
+}
+%%
+text/html,                     "html"
+application/xhtml+xml,         "html"
+text/plain,                    "txt"
+text/x-cross-domain-policy,    "txt"
+text/xml,                      "xml"
+application/xml,               "xml"
+application/rss+xml,           "xml"
+application/atom+xml,          "xml"
+text/css,                      "css"
+text/json,                     "json"
+application/json,              "json"
+text/javascript,               "js"
+application/x-javascript,      "js"
+application/javascript,        "js"
+image/svg+xml,                 "svg"
+image/png,                     "png"
+image/jpg,                     "jpg"
+image/jpeg,                    "jpg"
+image/gif,                     "gif"
+image/x-icon,                  "icon"
+image/vnd.microsoft.icon,      "icon"
+application/x-font-ttf,        "tff"
+application/x-font-woff,       "woff"
+application/x-woff,            "woff"
+application/font-woff2,        "woff"
+font/woff,                     "woff"
+mp3,                           "mp3"
+application/x-shockwave-flash, "swf"
+mp4,                           "mp4"
+audio/mp4,                     "mp4"
+video/MP2T,                    "mp4"
+video/x-flv,                   "flv"
+video/x-ms-asf,                "asf"
+zip,                           "zip"
+application/zip,               "zip"
+application/x-fcs,             "fcs"
+application/x-amf,             "amf"
+application/ocsp-response,     "ocsp"
+application/x-debian-package,  "deb"
+binary/octet-stream,                        "dat"
+application/x-unknown-content-type,         "dat"
+application/x-www-form-urlencoded,          "dat"
+application/octet-stream,                   "dat"
+application/vnd.google.safebrowsing-chunk,  "dat"
+application/vnd.google.safebrowsing-update, "dat"

@@ -1,0 +1,33 @@
+<!-- 
+   Test rules containing zero delay
+-->
+<beginning>
+
+<embedded_functions><![CDATA[
+#include <string.h>
+//each function name should be prefixed by em_
+//its input can be either a char *, or a double
+static inline int em_check_ip( const char* ip){
+  return 0;
+}
+]]></embedded_functions>
+
+<property value="THEN" property_id="102" type_property="SECURITY" 
+    description="check every packet">
+    <event boolean_expression="1"/>
+    <event 
+           description="Must be Valid IP"
+           boolean_expression="(#em_check_ip( ip.src ) )"/>
+</property>
+ 
+
+<property value="THEN" property_id="103" type_property="SECURITY" 
+    description="check every packet">
+    <event 
+           description="Could be Valid IP"
+           boolean_expression="(#em_check_ip( ip.src ) )"/>
+    <event boolean_expression="1"/>
+</property>
+
+ 
+</beginning>

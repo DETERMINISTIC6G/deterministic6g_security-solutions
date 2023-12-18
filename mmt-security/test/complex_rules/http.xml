@@ -1,0 +1,133 @@
+<!-- MMT_Security Copyright (C) 2014 Montimage Description: Detection of 
+	attacks in BGPost honeypot -->
+<beginning>
+
+
+	<embedded_functions><![CDATA[
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
+/**
+* Return:
+* - 0: ok
+* - 1: invalid
+* - 2: NULL
+*/
+static inline int check_URI(const char *uri_str){
+  int handle = 0;
+  //uri_str is always not-null
+  //if(uri_str == NULL){
+  //  return 2;
+  //}
+ 
+  const char *x = uri_str;
+  
+	//fprintf(stderr, "%s\n",x);
+	while (*x != '\0'){
+		//octets 0-32 (0-20 hex) | "\" | """ | "&" | "<" | ">" | "[" | "]" | "^" | "`" | "{" | "|" | "}" | "~" | octets 127-255 (7F-FF hex)
+		switch( *x ){
+			case 92  : 
+			case '"' : 
+			case '<' : 
+			case '>' : 
+			case '[' : 
+			case ']' : 
+			case '^' : 
+			case '`' : 
+			case '{' : 
+			case '|' : 
+			case '}' : 
+			case '%' : 
+	         return 1;
+	         
+	      //detect directory traversal attack
+	      case '.' :
+	      case '/' :
+            if( *(x+1) == '.' || *(x+1) == '/' )
+               return 1;
+			default:
+				if(*x < 32 ||  *x > 126 )
+				   return 1;
+	    }
+	    x = x+1;
+	}
+	
+//#ifdef DEBUG
+//  fprintf(stderr, "executing ceck_URI with parameters:h=%d:nb=%u:a1=%o:a2=%o\n", 
+//                                           handle, *(char*)(BLOC3+6),*(char*)(BLOC3+9));
+//#endif
+
+  return handle;
+}
+
+/*
+ * Nikto 
+ */
+static inline bool check_UA( const char *user_agent){
+   //find the first occurrence of string "Nikto" in string
+   return (strstr(user_agent, "Nikto") != NULL);     
+}
+
+static inline int check_http_response(const char* p){
+  if(p == NULL){
+    return 1;
+  }
+  return 0;
+}
+
+static inline  int check_ip_add(const char *src, const char *dst, const char *src1, const char *dst1){
+  if((src == NULL) || (dst == NULL) || (src1 == NULL) || (dst1 == NULL)){
+    return 1;
+  }
+  if (((src == src1) && (dst == dst1)) || ((src == dst1) && (dst == src1))){
+     return 1;
+  }
+  return 0;
+}
+
+]]></embedded_functions>
+
+
+	<!-- Property 10: C4_Analyse_03f : HTTP detecte avec un port different de 
+		80 et 8080. -->
+	<property value="THEN" delay_units="ms" delay_min="0"
+		delay_max="0" property_id="10" type_property="EVASION"
+		description="C4_Analyse_03f : HTTP using a port different from 80 and 8080.">
+		<event value="COMPUTE" event_id="1"
+			description="HTTP packet using a port different from 80 and 8080"
+			boolean_expression="((http.method == http.method)&amp;&amp;((tcp.dest_port != 80)&amp;&amp;(tcp.dest_port != 8080)))" />
+		<event value="COMPUTE" event_id="2" description="HTTP packet"
+			boolean_expression="(ip.src != ip.dst)" />
+	</property>
+
+
+	<!-- Property 12: C4_Analyse_03c|d|e : l URI d un paquet HTTP contient des 
+		caracteres non authorises. -->
+	<!-- URN invalid character set: octets 0-32 (0-20 hex) | "\" | """ | "&" 
+		| "<" | ">" | "[" | "]" | "^" | "`" | "{" | "|" | "}" | "~" | octets 127-255 
+		(7F-FF hex) -->
+	<property value="THEN" delay_units="ms" delay_min="0"
+		delay_max="0" property_id="12" type_property="EVASION"
+		description="C4_Analyse_03c|d|e : HTTP packet URI contains non authorised characteres according to RFC2396 and RFC2234 or possibly directory traversal attack.">
+		<event value="COMPUTE" event_id="1" description="HTTP URI invalid"
+			boolean_expression="((http.method == http.method)&amp;&amp;(#check_URI(http.uri) == 1))" />
+		<event value="COMPUTE" event_id="2" description="HTTP packet"
+			boolean_expression="(ip.src != ip.dst)" />
+	</property>
+
+	<!-- Property 15: C4_Analyse_02 : Web scan with Nikto. User-Agent based 
+		detection boolean_expression="((http.user_agent == '')||(#check_UA(http.user_agent) 
+		== 1))"/> -->
+	<property value="THEN" delay_units="ms" delay_min="0"
+		delay_max="0" property_id="15" type_property="ATTACK" description="Nikto detection">
+		<event event_id="1" value="COMPUTE"
+			description="Context: an  user agent in the HTTP header"
+			boolean_expression="((http.user_agent == http.user_agent)&amp;&amp;(#check_UA(http.user_agent) == 1))" />
+		<event event_id="2" value="COMPUTE" description="Trigger: Nikto detected. "
+			boolean_expression="(ip.src != ip.dst)" />
+	</property>
+
+
+</beginning>
