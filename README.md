@@ -24,7 +24,7 @@ Please refer to each component's document for further installation & usage:
 
 - [INT in P4](./int-p4) 
 - [INT data collector](./int-collector)(an extension of MMT-Probe)
-- [Non-disruptive monitoring](./mmt-probe)
-- [Signature-based security detection](./mmt-security)
-- [Network traffic attack generation](./5greplay)
+- [Non-disruptive monitoring](./mmt-probe) (MMT-Probe)
+- [Signature-based security detection](./mmt-security) (MMT-Security)
+- [Network traffic attack generation](./5greplay) (5Greplay)
 
